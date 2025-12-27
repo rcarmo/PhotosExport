@@ -10,19 +10,19 @@ final class PhotosExportTests: XCTestCase {
   }
 
   func testParseSettingsIncrementalFlag() {
-    let s = parseSettings(["PhotosExport", "--incremental"])
+    let s = try! parseSettings(["PhotosExport", "--incremental"])
     XCTAssertTrue(s.incremental)
     XCTAssertFalse(s.debug)
   }
 
   func testParseSettingsMetadataFlag() {
-    let s = parseSettings(["PhotosExport", "--metadata"])
+    let s = try! parseSettings(["PhotosExport", "--metadata"])
     XCTAssertTrue(s.metadata)
     XCTAssertFalse(s.incremental)
   }
 
   func testParseSettingsDebugFlag() {
-    let s = parseSettings(["PhotosExport", "--debug"])
+    let s = try! parseSettings(["PhotosExport", "--debug"])
     XCTAssertTrue(s.debug)
     XCTAssertFalse(s.incremental)
     XCTAssertFalse(s.metadata)
@@ -31,13 +31,27 @@ final class PhotosExportTests: XCTestCase {
   func testParseSettingsLogFile() throws {
     let tmp = try makeTempDir(prefix: "logfile")
     let log = tmp.appendingPathComponent("run.log")
-    let s = parseSettings(["PhotosExport", "--log-file", log.path])
+    let s = try parseSettings(["PhotosExport", "--log-file", log.path])
     XCTAssertEqual(s.logFile?.standardizedFileURL.path, log.standardizedFileURL.path)
   }
 
-  func testParseSettingsLogFileMissingArgDoesNotCrash() {
-    let s = parseSettings(["PhotosExport", "--log-file"])
-    XCTAssertNil(s.logFile)
+  func testParseSettingsLogFileMissingArgThrows() {
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--log-file"]))
+  }
+
+  func testParseSettingsYearOverrideValid() {
+    let s = try! parseSettings(["PhotosExport", "--year", "2024"])
+    XCTAssertEqual(s.yearOverride, 2024)
+  }
+
+  func testParseSettingsYearOverrideMissingValueThrows() {
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--year"]))
+  }
+
+  func testParseSettingsYearOverrideRejectsInvalid() {
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--year", "abcd"]))
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--year", "99"]))
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--year", "1969"]))
   }
 
   func testCaptureTimestampStringFormat() {
@@ -95,6 +109,25 @@ final class PhotosExportTests: XCTestCase {
   func testCurrentYearRangeIsSane() {
     let (start, end) = currentYearRange()
     XCTAssertLessThanOrEqual(start, end)
+  }
+
+  func testYearRangeBounds() {
+    let (start, end) = yearRange(2024)
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(secondsFromGMT: 0)!
+    XCTAssertEqual(cal.component(.year, from: start), 2024)
+    XCTAssertEqual(cal.component(.month, from: start), 1)
+    XCTAssertEqual(cal.component(.day, from: start), 1)
+    XCTAssertEqual(cal.component(.hour, from: start), 0)
+    XCTAssertEqual(cal.component(.minute, from: start), 0)
+    XCTAssertEqual(cal.component(.second, from: start), 0)
+
+    XCTAssertEqual(cal.component(.year, from: end), 2024)
+    XCTAssertEqual(cal.component(.month, from: end), 12)
+    XCTAssertEqual(cal.component(.day, from: end), 31)
+    XCTAssertEqual(cal.component(.hour, from: end), 23)
+    XCTAssertEqual(cal.component(.minute, from: end), 59)
+    XCTAssertEqual(cal.component(.second, from: end), 59)
   }
 
   func testEnsureDirCreatesDirectory() async throws {

@@ -10,7 +10,14 @@ enum Main {
     let home = fm.homeDirectoryForCurrentUser
     let exportBase = home.appendingPathComponent("Pictures/Exports", isDirectory: true)
     let errorLog = exportBase.appendingPathComponent("export_errors.log")
-    let settings = parseSettings(CommandLine.arguments)
+    let settings: Settings
+    do {
+      settings = try parseSettings(CommandLine.arguments)
+    } catch {
+      fputs("Invalid arguments: \(error)\n", stderr)
+      fputs("Usage: PhotosExport [--debug] [--incremental] [--metadata] [--year YYYY] [--log-file /path/to/log]\n", stderr)
+      exit(2)
+    }
 
     do {
       let debugLogger: LineLogger?
@@ -37,7 +44,7 @@ enum Main {
 
       try await requestPhotosAccess(logger: debugLogger)
 
-      let (start, end) = currentYearRange()
+      let (start, end) = settings.yearOverride.map(yearRange) ?? currentYearRange()
       await logDebug(debugLogger, "fetch.range start=\(isoTimestamp(start)) end=\(isoTimestamp(end))")
 
       let opts = PHFetchOptions()

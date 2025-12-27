@@ -4,7 +4,7 @@
 
 It is intentionally opinionated:
 
-- Exports **assets from the current calendar year** only.
+- Exports **assets from a complete calendar year** (current year by default).
 - For each asset, exports **all available `PHAssetResource`s** (including originals, `FullSizeRender` resources, Live Photo paired video resources, adjustment data, brush stroke retouches, etc.), when present.
 - Writes into a simple `YYYY/MM` folder hierarchy.
 - Uses a deterministic timestamp-based naming convention.
@@ -88,6 +88,16 @@ If you want to avoid re-downloading/re-writing files, use:
 By default, the exporter will **overwrite existing files** at the destination path.
 
 With `--incremental`, the exporter will instead **skip any resource whose destination filename already exists**.
+
+## Year override
+
+By default, the exporter processes assets from the current calendar year.
+
+To override:
+
+- `PhotosExport --year 2024`
+
+The year must be a 4-digit value between 1970 and 9999, inclusive. I briefly considered supporting date ranges, but decided against it for simplicity, and I suspect Mankind might change calendars before needing that.
 
 ## Build / Run
 
