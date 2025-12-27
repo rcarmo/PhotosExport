@@ -109,7 +109,7 @@ enum Main {
                 "uniformTypeIdentifier": res.uniformTypeIdentifier,
                 "originalFilename": res.originalFilename,
                 "exportedFilename": url.lastPathComponent,
-                "path": url.path
+                "path": url.lastPathComponent
               ]
               if let attrs = try? FileManager.default.attributesOfItem(atPath: url.path) {
                 if let size = attrs[.size] as? NSNumber { entry["fileSize"] = size }
