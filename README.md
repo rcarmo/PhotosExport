@@ -1,5 +1,7 @@
 # PhotosExport
 
+![Why I wrote this](docs/PhotosExport-256.png)
+
 `PhotosExport` is a small macOS command-line tool that exports **Apple Photos** library assets to the filesystem, and that I developed out of frustration with Shortcuts’ limited (i.e., non-existent) Photos export capabilities and the brokenness of AppleScript-based solutions.
 
 It is intentionally opinionated:
