@@ -14,6 +14,9 @@ let package = Package(
             exclude: [
                 "Info.plist",
             ],
+            swiftSettings: [
+                .unsafeFlags(["-parse-as-library"])
+            ],
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
