@@ -39,6 +39,18 @@ final class PhotosExportTests: XCTestCase {
     XCTAssertThrowsError(try parseSettings(["PhotosExport", "--log-file"]))
   }
 
+  func testParseSettingsExportDirectory() throws {
+    let tmp = try makeTempDir(prefix: "export_dir")
+    // By default the log file is written in the export directory
+    let log = tmp.appendingPathComponent("run.log")
+    let s = try parseSettings(["PhotosExport", "--export-directory", log.path])
+    XCTAssertEqual(s.exportDirectory?.standardizedFileURL.path, log.standardizedFileURL.path)
+  }
+
+  func testParseSettingsExportDirectoryMissingArgThrows() {
+    XCTAssertThrowsError(try parseSettings(["PhotosExport", "--export-directory"]))
+  }
+
   func testParseSettingsYearOverrideValid() {
     let s = try! parseSettings(["PhotosExport", "--year", "2024"])
     XCTAssertEqual(s.yearOverride, 2024)

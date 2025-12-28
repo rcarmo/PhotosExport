@@ -32,9 +32,11 @@ Exports go under:
 
 - `~/Pictures/Exports/YYYY/MM/`
 
+Unless you pass `--export-directory <path to the directory>`.
+
 An error log is written to:
 
-- `~/Pictures/Exports/export_errors.log`
+- `<export directory>/export_errors.log`
 
 ## Filenames
 

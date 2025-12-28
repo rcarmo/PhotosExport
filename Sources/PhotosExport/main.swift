@@ -6,18 +6,25 @@ import UniformTypeIdentifiers
 enum Main {
   @MainActor
   static func main() async {
-    let fm = FileManager.default
-    let home = fm.homeDirectoryForCurrentUser
-    let exportBase = home.appendingPathComponent("Pictures/Exports", isDirectory: true)
-    let errorLog = exportBase.appendingPathComponent("export_errors.log")
     let settings: Settings
     do {
       settings = try parseSettings(CommandLine.arguments)
     } catch {
       fputs("Invalid arguments: \(error)\n", stderr)
-      fputs("Usage: PhotosExport [--debug] [--incremental] [--metadata] [--year YYYY] [--log-file /path/to/log]\n", stderr)
+      fputs("Usage: PhotosExport [--debug] [--incremental] [--metadata] [--year YYYY] [--log-file /path/to/log] [--export-directory /path/to/export]\n", stderr)
       exit(2)
     }
+
+    let fm = FileManager.default
+    let exportBase = if let exportDirectory = settings.exportDirectory {
+        exportDirectory
+    } else {
+      fm.homeDirectoryForCurrentUser.appendingPathComponent(
+        "Pictures/Exports",
+        isDirectory: true
+      )
+    }
+    let errorLog = exportBase.appendingPathComponent("export_errors.log")
 
     do {
       let debugLogger: LineLogger?
