@@ -15,6 +15,7 @@ enum SettingsError: Error, LocalizedError {
 }
 
 struct Settings {
+  var exportDirectory: URL? = nil
   var logFile: URL? = nil
   var debug: Bool = false
   var incremental: Bool = false
@@ -53,6 +54,12 @@ func parseSettings(_ args: [String]) throws -> Settings {
       } else {
         throw SettingsError.missingValue("--log-file")
       }
+    case "--export-directory":
+      guard i + 1 < args.count else {
+        throw SettingsError.missingValue("--export-directory")
+      }
+      settings.exportDirectory = URL(fileURLWithPath: args[i + 1]).standardizedFileURL
+      i += 2
     default:
       i += 1
     }
