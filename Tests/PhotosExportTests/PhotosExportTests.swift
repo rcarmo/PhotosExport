@@ -41,7 +41,16 @@ final class PhotosExportTests: XCTestCase {
 
   func testParseSettingsYearOverrideValid() {
     let s = try! parseSettings(["PhotosExport", "--year", "2024"])
-    XCTAssertEqual(s.yearOverride, 2024)
+    XCTAssertEqual(s.yearOverride, Settings.YearOverride(startYear: 2024, endYear: 2024))
+
+    let s1 = try! parseSettings(["PhotosExport", "--start-year", "2024"])
+    XCTAssertEqual(s1.yearOverride, s.yearOverride)
+
+    let s2 = try! parseSettings(["PhotosExport", "--end-year", "2024"])
+    XCTAssertEqual(s2.yearOverride, s.yearOverride)
+
+    let s3 = try! parseSettings(["PhotosExport", "--start-year", "2022", "--end-year", "2025"])
+    XCTAssertEqual(s3.yearOverride, Settings.YearOverride(startYear: 2022, endYear: 2025))
   }
 
   func testParseSettingsYearOverrideMissingValueThrows() {
@@ -112,17 +121,17 @@ final class PhotosExportTests: XCTestCase {
   }
 
   func testYearRangeBounds() {
-    let (start, end) = yearRange(2024)
+    let (start, end) = yearRange(startYear: 2022, endYear: 2025)
     var cal = Calendar(identifier: .gregorian)
     cal.timeZone = TimeZone(secondsFromGMT: 0)!
-    XCTAssertEqual(cal.component(.year, from: start), 2024)
+    XCTAssertEqual(cal.component(.year, from: start), 2022)
     XCTAssertEqual(cal.component(.month, from: start), 1)
     XCTAssertEqual(cal.component(.day, from: start), 1)
     XCTAssertEqual(cal.component(.hour, from: start), 0)
     XCTAssertEqual(cal.component(.minute, from: start), 0)
     XCTAssertEqual(cal.component(.second, from: start), 0)
 
-    XCTAssertEqual(cal.component(.year, from: end), 2024)
+    XCTAssertEqual(cal.component(.year, from: end), 2025)
     XCTAssertEqual(cal.component(.month, from: end), 12)
     XCTAssertEqual(cal.component(.day, from: end), 31)
     XCTAssertEqual(cal.component(.hour, from: end), 23)

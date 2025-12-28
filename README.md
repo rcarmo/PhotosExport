@@ -101,6 +101,8 @@ To override:
 
 The year can be any valid integer. By popular request, we now allow any year—to accommodate researchers, time travelers, and inter-dimensional drift.
 
+You can alternatively use `PhotosExport --start-year 1800 --end-year 2025` if you want to export a range of years. Useful as a time traveler wanting to do your initial library export.
+
 ## Build / Run
 
 There’s a `Makefile` with self-documenting targets:
