@@ -44,7 +44,9 @@ enum Main {
 
       try await requestPhotosAccess(logger: debugLogger)
 
-      let (start, end) = settings.yearOverride.map(yearRange) ?? currentYearRange()
+      let (start, end) = settings.yearOverride.map {
+        yearRange(startYear: $0.startYear, endYear: $0.endYear)
+      } ?? currentYearRange()
       await logDebug(debugLogger, "fetch.range start=\(isoTimestamp(start)) end=\(isoTimestamp(end))")
 
       let opts = PHFetchOptions()

@@ -19,7 +19,12 @@ struct Settings {
   var debug: Bool = false
   var incremental: Bool = false
   var metadata: Bool = false
-  var yearOverride: Int? = nil
+
+  struct YearOverride: Equatable {
+    var startYear: Int
+    var endYear: Int
+  }
+  var yearOverride: YearOverride? = nil
 }
 
 func parseSettings(_ args: [String]) throws -> Settings {
@@ -44,8 +49,36 @@ func parseSettings(_ args: [String]) throws -> Settings {
       guard let year = Int(raw) else {
         throw SettingsError.invalidYear(raw)
       }
-      settings.yearOverride = year
+      settings.yearOverride = Settings.YearOverride(startYear: year, endYear: year)
       i += 2
+    case "--start-year":
+        guard i + 1 < args.count else {
+            throw SettingsError.missingValue("--start-year")
+        }
+        let raw = args[i + 1]
+        guard let year = Int(raw) else {
+            throw SettingsError.invalidYear(raw)
+        }
+        if settings.yearOverride != nil {
+            settings.yearOverride?.startYear = year
+        } else {
+            settings.yearOverride = Settings.YearOverride(startYear: year, endYear: year)
+        }
+        i += 2
+    case "--end-year":
+        guard i + 1 < args.count else {
+            throw SettingsError.missingValue("--end-year")
+        }
+        let raw = args[i + 1]
+        guard let year = Int(raw) else {
+            throw SettingsError.invalidYear(raw)
+        }
+        if settings.yearOverride != nil {
+            settings.yearOverride?.endYear = year
+        } else {
+            settings.yearOverride = Settings.YearOverride(startYear: year, endYear: year)
+        }
+        i += 2
     case "--log-file":
       if i + 1 < args.count {
         settings.logFile = URL(fileURLWithPath: args[i + 1]).standardizedFileURL
