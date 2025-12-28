@@ -9,7 +9,7 @@ enum SettingsError: Error, LocalizedError {
     case .missingValue(let flag):
       return "Missing value for \(flag)"
     case .invalidYear(let raw):
-      return "Invalid year '\(raw)'. Expected a 4-digit year between 1970 and 9999."
+      return "Invalid year '\(raw)'. Expected a valid integer."
     }
   }
 }
@@ -41,7 +41,7 @@ func parseSettings(_ args: [String]) throws -> Settings {
         throw SettingsError.missingValue("--year")
       }
       let raw = args[i + 1]
-      guard raw.count == 4, let year = Int(raw), (1970...9999).contains(year) else {
+      guard let year = Int(raw) else {
         throw SettingsError.invalidYear(raw)
       }
       settings.yearOverride = year

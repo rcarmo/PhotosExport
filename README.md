@@ -99,7 +99,7 @@ To override:
 
 - `PhotosExport --year 2024`
 
-The year must be a 4-digit value between 1970 and 9999, inclusive. I briefly considered supporting date ranges, but decided against it for simplicity, and I suspect Mankind might change calendars before needing that.
+The year can be any valid integer. By popular request, we now allow any year—to accommodate researchers, time travelers, and inter-dimensional drift.
 
 ## Build / Run
 
