@@ -124,6 +124,12 @@ enum Main {
             )
             let sidecarURL = folder.appendingPathComponent(sidecarName)
 
+            if settings.incremental && FileManager.default.fileExists(atPath: sidecarURL.path) {
+              await logDebug(debugLogger, "metadata.json.skip existing asset=\(asset.localIdentifier) dest=\(sidecarURL.path)")
+              usedNamesByFolder[folder] = usedNames
+              continue
+            }
+
             var metadata = await extractMetadata(asset: asset, logger: debugLogger)
 
             metadata["exportedFiles"] = exportedResources.map { res, url in
