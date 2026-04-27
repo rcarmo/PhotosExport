@@ -103,11 +103,10 @@ enum Main {
           // Check if all media files already exist (for incremental skip logic).
           let resources = PHAssetResource.assetResources(for: asset)
           let allMediaAlreadyExported = resources.allSatisfy { r in
-            let candidateName = exportFilename(
+            let candidateName = filenameForResource(
+              asset: asset,
+              resource: r,
               captureDate: date,
-              originalFilename: r.originalFilename,
-              fallbackSeed: "asset=\(asset.localIdentifier)|metadata",
-              uti: r.uniformTypeIdentifier,
               usedNames: &usedNames
             )
             return FileManager.default.fileExists(atPath: folder.appendingPathComponent(candidateName).path)
