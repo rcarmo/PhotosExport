@@ -126,28 +126,11 @@ enum Main {
             let sidecarURL = folder.appendingPathComponent(sidecarName)
 
             if settings.incremental && FileManager.default.fileExists(atPath: sidecarURL.path) {
-              // Only skip the sidecar if the media files also already existed.
-              // If any media was re-exported (missing on disk), the JSON is stale
-              // and should be regenerated to reflect the new file details.
-              let resources = PHAssetResource.assetResources(for: asset)
-              var checkUsedNames = usedNames
-              let allMediaAlreadyExported = resources.allSatisfy { r in
-                let candidateName = filenameForResource(
-                  asset: asset,
-                  resource: r,
-                  captureDate: date,
-                  usedNames: &checkUsedNames
-                )
-                return FileManager.default.fileExists(atPath: folder.appendingPathComponent(candidateName).path)
-              }
-
-              if allMediaAlreadyExported {
-                await logDebug(debugLogger, "metadata.json.skip existing asset=\(asset.localIdentifier) dest=\(sidecarURL.path)")
-                usedNamesByFolder[folder] = usedNames
-                exported += 1
-                bar.tick(label + " ✓")
-                continue
-              }
+              await logDebug(debugLogger, "metadata.json.skip existing asset=\(asset.localIdentifier) dest=\(sidecarURL.path)")
+              usedNamesByFolder[folder] = usedNames
+              exported += 1
+              bar.tick(label + " ✓")
+              continue
             }
 
             var metadata = await extractMetadata(asset: asset, logger: debugLogger)
