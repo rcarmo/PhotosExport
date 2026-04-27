@@ -33,21 +33,11 @@ func exportFilename(
   }
 
   let seed = originalFilename.isEmpty ? fallbackSeed : "\(originalFilename)|\(fallbackSeed)"
+  let hash = fnv1a64(seed)
 
   var attempt = 0
   while true {
-    let letter: String
-    if attempt < 26 {
-      let h = fnv1a64(seed)
-      letter = alphaLetter(from: h, offset: attempt)
-    } else {
-      let subAttempt = attempt - 26
-      let firstCycle = subAttempt / 26
-      let secondOffset = subAttempt % 26
-      let h1 = fnv1a64("\(seed)#\(firstCycle)")
-      let h2 = fnv1a64("\(seed)#\(firstCycle)\(secondOffset)")
-      letter = alphaLetter(from: h1, offset: 0) + alphaLetter(from: h2, offset: secondOffset)
-    }
+    let letter = alphaSuffix(from: hash, attempt: attempt)
     let stem = "\(ts)\(letter)"
     let candidate = ext.isEmpty ? stem : "\(stem).\(ext)"
     if !usedNames.contains(candidate) {

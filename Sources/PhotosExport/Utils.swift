@@ -30,6 +30,19 @@ func alphaLetter(from hash: UInt64, offset: Int = 0) -> String {
   return String(UnicodeScalar(97 + idx)!)
 }
 
+func alphaSuffix(from hash: UInt64, attempt: Int) -> String {
+  precondition(attempt >= 0)
+
+  var n = attempt
+  var letters: [String] = []
+  repeat {
+    letters.append(alphaLetter(from: hash, offset: n % 26))
+    n = n / 26 - 1
+  } while n >= 0
+
+  return letters.reversed().joined()
+}
+
 func sanitize(_ s: String) -> String {
   return s.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "-")
 }
