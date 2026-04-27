@@ -358,4 +358,73 @@ final class PhotosExportTests: XCTestCase {
 
     XCTAssertEqual(wrapped, "\(ts)a.jpg")
   }
+
+  func testExportFilenameExceeds26CollisionsWithTwoLetterSuffix() {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(secondsFromGMT: 0)!
+    let date = cal.date(from: DateComponents(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5))!
+
+    let ts = captureTimestampString(date)
+    var used = Set<String>()
+
+    // Pre-fill all 26 single-letter slots to force two-letter suffixes.
+    for i in 0..<26 {
+      let letter = String(UnicodeScalar(97 + i)!)
+      used.insert("\(ts)\(letter).jpg")
+    }
+
+    // The 27th collision should produce a two-letter suffix.
+    let result = exportFilename(
+      captureDate: date,
+      originalFilename: "overflow.jpg",
+      fallbackSeed: "overflow",
+      uti: "public.jpeg",
+      usedNames: &used
+    )
+
+    // Should be timestamp + 2 letters + extension.
+    XCTAssertTrue(result.hasSuffix(".jpg"))
+    let stem = result.dropLast(4)
+    XCTAssertEqual(stem.count, 14 + 2) // ts(14) + 2 letters
+    // The two letters should start with 'a' (first two-letter combo).
+    XCTAssertTrue(stem.hasPrefix("\(ts)a"))
+  }
+
+  func testExportFilenameHandles100Collisions() {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(secondsFromGMT: 0)!
+    let date = cal.date(from: DateComponents(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5))!
+
+    let ts = captureTimestampString(date)
+    var used = Set<String>()
+
+    // Pre-fill all 26 single-letter slots.
+    for i in 0..<26 {
+      let letter = String(UnicodeScalar(97 + i)!)
+      used.insert("\(ts)\(letter).jpg")
+    }
+
+    // Generate 100 unique filenames for the same timestamp.
+    var results: [String] = []
+    for i in 0..<100 {
+      let name = "overflow_\(i).jpg"
+      let fn = exportFilename(
+        captureDate: date,
+        originalFilename: name,
+        fallbackSeed: "overflow",
+        uti: "public.jpeg",
+        usedNames: &used
+      )
+      results.append(fn)
+    }
+
+    // All results must be unique.
+    XCTAssertEqual(Set(results).count, 100)
+
+    // All should have the correct timestamp prefix and .jpg extension.
+    for r in results {
+      XCTAssertTrue(r.hasSuffix(".jpg"))
+      XCTAssertTrue(r.hasPrefix("\(ts)"))
+    }
+  }
 }

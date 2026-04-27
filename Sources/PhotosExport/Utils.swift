@@ -25,9 +25,9 @@ func fnv1a64(_ s: String) -> UInt64 {
   return hash
 }
 
-func alphaLetter(from hash: UInt64, offset: Int = 0) -> Character {
+func alphaLetter(from hash: UInt64, offset: Int = 0) -> String {
   let idx = Int((hash % 26) + UInt64((offset % 26 + 26) % 26)) % 26
-  return Character(UnicodeScalar(97 + idx)!)
+  return String(UnicodeScalar(97 + idx)!)
 }
 
 func sanitize(_ s: String) -> String {
