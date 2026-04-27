@@ -99,6 +99,20 @@ enum Main {
 
           // Reuse the per-folder set across assets so filenames remain unique.
           var usedNames = usedNamesByFolder[folder] ?? Set<String>()
+
+          // Check if all media files already exist (for incremental skip logic).
+          let resources = PHAssetResource.assetResources(for: asset)
+          let allMediaAlreadyExported = resources.allSatisfy { r in
+            let candidateName = exportFilename(
+              captureDate: date,
+              originalFilename: r.originalFilename,
+              fallbackSeed: "asset=\(asset.localIdentifier)|metadata",
+              uti: r.uniformTypeIdentifier,
+              usedNames: &usedNames
+            )
+            return FileManager.default.fileExists(atPath: folder.appendingPathComponent(candidateName).path)
+          }
+
           let exportedResources = try await exportAllResources(
             asset: asset,
             captureDate: date,
@@ -124,7 +138,10 @@ enum Main {
             )
             let sidecarURL = folder.appendingPathComponent(sidecarName)
 
-            if settings.incremental && FileManager.default.fileExists(atPath: sidecarURL.path) {
+            if settings.incremental && FileManager.default.fileExists(atPath: sidecarURL.path) && allMediaAlreadyExported {
+              // Only skip the sidecar if the media files also already existed.
+              // If any media was re-exported (missing on disk), the JSON is stale
+              // and should be regenerated to reflect the new file details.
               await logDebug(debugLogger, "metadata.json.skip existing asset=\(asset.localIdentifier) dest=\(sidecarURL.path)")
               usedNamesByFolder[folder] = usedNames
               exported += 1
