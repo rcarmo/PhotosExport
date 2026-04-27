@@ -127,6 +127,8 @@ enum Main {
             if settings.incremental && FileManager.default.fileExists(atPath: sidecarURL.path) {
               await logDebug(debugLogger, "metadata.json.skip existing asset=\(asset.localIdentifier) dest=\(sidecarURL.path)")
               usedNamesByFolder[folder] = usedNames
+              exported += 1
+              bar.tick(label + " ✓")
               continue
             }
 
